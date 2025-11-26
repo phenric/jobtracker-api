@@ -103,3 +103,20 @@ docker-compose logs -f postgres
 # Build and start PostgreSQL
 docker-compose up postgres
 ```
+
+## Swagger
+
+### Access Swagger
+Swagger UI (Interactive Documentation)
+```
+http://localhost:8080/swagger-ui.html
+```
+OpenApi JSON
+```
+http://localhost:8080/api-docs
+```
+Alternative Swagger UI URL
+
+```
+http://localhost:8080/swagger-ui/index.html
+```
