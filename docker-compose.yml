@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: jobstracker-db
+    environment:
+      POSTGRES_DB: jobstracker
+      POSTGRES_USER: jobstracker_user
+      POSTGRES_PASSWORD: jobstracker_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - jobstracker-network
+
+  app:
+    build: .
+    container_name: jobstracker-app
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jobstracker
+      SPRING_DATASOURCE_USERNAME: jobstracker_user
+      SPRING_DATASOURCE_PASSWORD: jobstracker_pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+    networks:
+      - jobstracker-network
+
+volumes:
+  postgres_data:
+
+networks:
+  jobstracker-network:
+    driver: bridge
