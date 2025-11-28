@@ -38,3 +38,5 @@ springdoc:
     tryItOutEnabled: true
   packages-to-scan: com.vedisee.jobstracker
   show-actuator: true
+
+job.scraping.cron: 0 0 2 * * *
