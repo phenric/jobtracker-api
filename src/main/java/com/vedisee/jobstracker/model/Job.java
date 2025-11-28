@@ -34,6 +34,12 @@ public class Job {
     @Column(nullable = false)
     private Platform platform;
 
+    @Column(nullable = false)
+    private String location;
+
+    @Column(nullable = false)
+    private String url;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -43,10 +49,6 @@ public class Job {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-    }
-
-    @PrePersist
-    protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
 }

@@ -9,5 +9,4 @@ class JobstrackerApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }

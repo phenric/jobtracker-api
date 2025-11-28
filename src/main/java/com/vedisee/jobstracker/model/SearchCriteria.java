@@ -42,10 +42,6 @@ public class SearchCriteria {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-    }
-
-    @PrePersist
-    protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
 }

@@ -16,7 +16,7 @@ server.port: 8080
 # Actuator Configuration
 management:
   endpoints:
-    web.exposure.include: *
+    web.exposure.include: "*"
     health.show-details: always
     health.show-components: always
     web.base-path: /actuator
