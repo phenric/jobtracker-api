@@ -6,7 +6,6 @@ A Spring Boot application for tracking job applications with PostgreSQL database
 
 - [Prerequisites](#prerequisites)
 - [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
     - [Running with Docker](#running-with-docker)
     - [Running Locally](#running-locally)
