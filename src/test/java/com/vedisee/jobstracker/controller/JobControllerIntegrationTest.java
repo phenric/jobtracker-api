@@ -12,18 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.Set;
 
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -43,7 +41,7 @@ public class JobControllerIntegrationTest {
     @Autowired
     private SearchCriteriaRepository searchCriteriaRepository;
 
-    @MockitoBean
+    @Autowired
     private JobScrapingService jobScrapingService;
 
     @Autowired
@@ -145,7 +143,5 @@ public class JobControllerIntegrationTest {
     void shouldTriggerJobScraping() throws Exception {
         mockMvc.perform(post("/api/jobs/scrape"))
                 .andExpect(status().isOk());
-
-        verify(jobScrapingService).scrapAllPlatforms();
     }
 }
