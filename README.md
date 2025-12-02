@@ -34,32 +34,6 @@ A Spring Boot application for tracking job applications with PostgreSQL database
 
 ---
 
-## Project Structure
-
-jobstracker/
-├── docker-compose.yml          # Docker services configuration
-├── Dockerfile                  # Application container definition
-├── pom.xml                     # Maven dependencies
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/vedisee/jobstracker/
-│   │   │       ├── JobstrackerApplication.java
-│   │   │       └── config/
-│   │   │           └── SecurityConfig.java
-│   │   └── resources/
-│   │       └── application.properties    # Main configuration
-│   └── test/
-│       ├── java/
-│       │   └── com/vedisee/jobstracker/
-│       │       └── JobstrackerApplicationTests.java
-│       └── resources/
-│           └── application.properties    # Test configuration (H2)
-└── mvnw                        # Maven wrapper
-
-
----
-
 ## Getting Started
 
 ### Running on Docker
