@@ -144,6 +144,15 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.5.2</version>
                 <configuration>
+                    <!-- Allow running individual tests -->
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                    </includes>
+                    <!-- Prevent running all tests when one is selected -->
+                    <runOrder>alphabetical</runOrder>
+                    <reuseForks>true</reuseForks>
+                    <forkCount>1</forkCount>
                     <forkedProcessTimeoutInSeconds>60</forkedProcessTimeoutInSeconds>
                     <argLine>@{argLine} -Xmx1024m</argLine>
                 </configuration>
