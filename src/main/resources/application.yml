@@ -1,3 +1,10 @@
+info:
+  app:
+    name: JobsTracker
+    description: Job Application Tracking System
+    version: "@project.version@"
+    java.version: "@java.version@"
+
 # PostgreSQL Configuration
 spring:
   datasource:
