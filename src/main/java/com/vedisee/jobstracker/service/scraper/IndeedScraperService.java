@@ -25,7 +25,7 @@ public class IndeedScraperService implements JobScraperService {
 
     @Override
     public Platform getPlatform() {
-        return Platform.LINKEDIN;
+        return Platform.INDEED;
     }
 
     @Override

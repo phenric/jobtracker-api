@@ -1,4 +1,12 @@
 # JobsTracker
+![Coverage](.github/badges/jacoco.svg)
+![Branches](.github/badges/branches.svg)
+
+## Code Coverage
+
+Current coverage: ![Coverage](.github/badges/jacoco.svg)
+
+## Features
 
 A Spring Boot application for tracking job applications with PostgreSQL database.
 
