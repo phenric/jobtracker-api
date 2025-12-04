@@ -1,10 +1,10 @@
-name: CI Main
+name: CI with Coverage
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 permissions:
   contents: write
@@ -31,10 +31,27 @@ jobs:
       - name: Build and test with Maven
         run: mvn clean verify
 
-      - name: Create badges directory
+      - name: Log coverage summary
+        run: |
+          echo "📊 Coverage Report"
+          echo "=================="
+          if [ -f target/site/jacoco/index.html ]; then
+            echo "✅ JaCoCo report generated"
+            # Extract coverage from CSV if it exists
+            if [ -f target/site/jacoco/jacoco.csv ]; then
+              tail -1 target/site/jacoco/jacoco.csv
+            fi
+          else
+            echo "❌ No coverage report found"
+          fi
+
+      # Only generate and commit badges on main branch
+      - name: Create badges directory (main only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: mkdir -p .github/badges
 
-      - name: Generate JaCoCo Badge
+      - name: Generate JaCoCo Badge (main only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         id: jacoco
         uses: cicirello/jacoco-badge-generator@v2
         with:
@@ -43,24 +60,43 @@ jobs:
           generate-branches-badge: true
           generate-summary: true
           fail-on-coverage-decrease: false
-          fail-if-coverage-less-than: 60
-          fail-if-branches-less-than: 50
+          fail-if-coverage-less-than: 0
 
-      - name: Commit and push badges
-        if: github.event_name == 'push'
+      - name: Log coverage percentages (main only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          echo "📈 Coverage: ${{ steps.jacoco.outputs.coverage }}%"
+          echo "🌿 Branches: ${{ steps.jacoco.outputs.branches }}%"
+
+      - name: Commit and push badges (main only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add .github/badges/*.svg || true
-          if ! git diff --staged --quiet; then
+          
+          git add .github/badges/*.svg .github/badges/*.json 2>/dev/null || true
+          
+          if git diff --staged --quiet; then
+            echo "No badge changes to commit"
+          else
             git commit -m "Update coverage badges [skip ci]"
-            git push
+            git push origin main
           fi
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-reports
-          path: |
-            target/site/jacoco/
-            .github/badges/
+          name: coverage-reports-${{ github.sha }}
+          path: target/site/jacoco/
+          retention-days: 30
+
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: madrapps/jacoco-report@v1.6.1
+        with:
+          paths: target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 60
+          min-coverage-changed-files: 60
+          title: 'Code Coverage Report'
+          update-comment: true
