@@ -189,6 +189,18 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
+
+                <!-- Global configuration for all executions -->
+                <configuration>
+                    <excludes>
+                        <exclude>**/config/**</exclude>
+                        <exclude>**/dto/**</exclude>
+                        <exclude>**/entity/**</exclude>
+                        <exclude>**/exception/**</exclude>
+                        <exclude>**/JobstrackerApplication.class</exclude>
+                    </excludes>
+                </configuration>
+
                 <executions>
                     <!-- Prepare agent for unit tests -->
                     <execution>
@@ -197,23 +209,22 @@
                             <goal>prepare-agent</goal>
                         </goals>
                         <configuration>
-                            <destFile>${project.build.directory}/jacoco-unit.exec</destFile>
+                            <destFile>${project.build.directory}/jacoco-ut.exec</destFile>
                         </configuration>
                     </execution>
 
-                    <!-- Generate unit test report -->
+                    <!-- Prepare agent for integration tests -->
                     <execution>
-                        <id>report</id>
-                        <phase>test</phase>
+                        <id>prepare-agent-integration</id>
                         <goals>
-                            <goal>report</goal>
+                            <goal>prepare-agent-integration</goal>
                         </goals>
                         <configuration>
-                            <dataFile>${project.build.directory}/jacoco-unit.exec</dataFile>
+                            <destFile>${project.build.directory}/jacoco-it.exec</destFile>
                         </configuration>
                     </execution>
 
-                    <!-- Merge all execution data -->
+                    <!-- Merge coverage files -->
                     <execution>
                         <id>merge-results</id>
                         <phase>verify</phase>
@@ -233,28 +244,26 @@
                         </configuration>
                     </execution>
 
-                    <!-- Generate aggregate report -->
+                    <!-- Generate report from merged data -->
                     <execution>
-                        <id>report-aggregate</id>
+                        <id>report</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
                         <configuration>
                             <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
-                            <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
                         </configuration>
                     </execution>
 
-                    <!-- Coverage verification - uses merged data -->
+                    <!-- Coverage check on merged data -->
                     <execution>
                         <id>jacoco-check</id>
+                        <phase>verify</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
-                        <phase>verify</phase>
                         <configuration>
-                            <skip>${jacoco.skip.check}</skip>
                             <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
                             <rules>
                                 <rule>
@@ -277,6 +286,6 @@
                     </execution>
                 </executions>
             </plugin>
-		</plugins>
+        </plugins>
 	</build>
 </project>

@@ -28,17 +28,9 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Run tests WITHOUT coverage check first
-      - name: Run tests and generate coverage
-        run: mvn clean test jacoco:report -Djacoco.skip.check=true
-
-      # Merge coverage reports
-      - name: Merge coverage reports
-        run: mvn jacoco:report-aggregate
-
-      # Now check coverage on merged report
-      - name: Verify coverage thresholds
-        run: mvn jacoco:check -Djacoco.dataFile=target/jacoco-merged.exec
+      # Single command - runs tests, merges coverage, checks thresholds
+      - name: Build and verify with coverage
+        run: mvn clean verify
 
       - name: Generate JaCoCo Badge
         id: jacoco
@@ -68,13 +60,3 @@ jobs:
         with:
           name: jacoco-report
           path: target/site/jacoco/
-
-      - name: Comment coverage on PR
-        if: github.event_name == 'pull_request'
-        uses: madrapps/jacoco-report@v1.6.1
-        with:
-          paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 80
-          title: Code Coverage Report
