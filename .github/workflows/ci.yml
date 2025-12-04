@@ -19,23 +19,49 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: maven
+          cache: 'maven'
 
-      - name: Run tests with coverage
-        run: mvn clean verify
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # Run tests WITHOUT coverage check first
+      - name: Run tests and generate coverage
+        run: mvn clean test jacoco:report -Djacoco.skip.check=true
+
+      # Merge coverage reports
+      - name: Merge coverage reports
+        run: mvn jacoco:report-aggregate
+
+      # Now check coverage on merged report
+      - name: Verify coverage thresholds
+        run: mvn jacoco:check -Djacoco.dataFile=target/jacoco-merged.exec
 
       - name: Generate JaCoCo Badge
         id: jacoco
         uses: cicirello/jacoco-badge-generator@v2
         with:
-          badges-directory: badges
+          badges-directory: .github/badges
           generate-branches-badge: true
           generate-summary: true
+          jacoco-csv-file: target/site/jacoco/jacoco.csv
 
       - name: Log coverage percentage
         run: |
           echo "Coverage = ${{ steps.jacoco.outputs.coverage }}"
-          echo "Branch coverage = ${{ steps.jacoco.outputs.branches }}"
+          echo "Branch Coverage = ${{ steps.jacoco.outputs.branches }}"
+
+      - name: Commit and push badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .github/badges/*.svg || true
+          git diff --staged --quiet || git commit -m "Update coverage badges [skip ci]"
+          git push || true
 
       - name: Upload JaCoCo coverage report
         uses: actions/upload-artifact@v4
@@ -43,20 +69,12 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco/
 
-      - name: Add coverage to PR comment
+      - name: Comment coverage on PR
         if: github.event_name == 'pull_request'
         uses: madrapps/jacoco-report@v1.6.1
         with:
-          paths: |
-            ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+          paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 70
+          min-coverage-overall: 80
           min-coverage-changed-files: 80
-          title: 'Code Coverage Report'
-          update-comment: true
-
-      - name: Fail if coverage is too low
-        if: steps.jacoco.outputs.coverage-int < 70
-        run: |
-          echo "Coverage is below 70%"
-          exit 1
+          title: Code Coverage Report
