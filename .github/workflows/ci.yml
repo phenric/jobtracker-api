@@ -1,10 +1,10 @@
-name: CI with Coverage
+name: CI Main
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
 
 permissions:
   contents: write
@@ -31,6 +31,9 @@ jobs:
       - name: Build and test with Maven
         run: mvn clean verify
 
+      - name: Create badges directory
+        run: mkdir -p .github/badges
+
       - name: Generate JaCoCo Badge
         id: jacoco
         uses: cicirello/jacoco-badge-generator@v2
@@ -39,35 +42,20 @@ jobs:
           badges-directory: .github/badges
           generate-branches-badge: true
           generate-summary: true
+          fail-on-coverage-decrease: false
           fail-if-coverage-less-than: 60
           fail-if-branches-less-than: 50
 
-      - name: Log coverage percentages
-        run: |
-          echo "Coverage: ${{ steps.jacoco.outputs.coverage }}"
-          echo "Branches: ${{ steps.jacoco.outputs.branches }}"
-
-      - name: Create badges directory if it doesn't exist
-        run: mkdir -p .github/badges
-
       - name: Commit and push badges
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        if: github.event_name == 'push'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
-          # Add badges
           git add .github/badges/*.svg || true
-          
-          # Check if there are changes
-          if git diff --staged --quiet; then
-            echo "No badge changes to commit"
-          else
+          if ! git diff --staged --quiet; then
             git commit -m "Update coverage badges [skip ci]"
             git push
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
@@ -76,12 +64,3 @@ jobs:
           path: |
             target/site/jacoco/
             .github/badges/
-
-      - name: Comment PR with coverage
-        if: github.event_name == 'pull_request'
-        uses: madrapps/jacoco-report@v1.6.1
-        with:
-          paths: target/site/jacoco/jacoco.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 60
-          min-coverage-changed-files: 60
