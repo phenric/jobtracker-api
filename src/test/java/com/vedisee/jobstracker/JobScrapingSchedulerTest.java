@@ -6,6 +6,7 @@ import com.vedisee.jobstracker.service.JobScrapingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -18,6 +19,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @EnableScheduling
+@DirtiesContext
 @TestPropertySource(properties = {
         "job.scraping.cron=*/2 * * * * *"
 })
